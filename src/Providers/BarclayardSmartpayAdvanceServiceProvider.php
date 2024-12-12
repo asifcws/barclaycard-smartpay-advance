@@ -4,7 +4,7 @@ namespace Cws\BarclaycardSmartpayAdvance\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class BarclaycardSmartpayAdvanceServiceProvider
+class BarclaycardSmartpayAdvanceServiceProvider extends ServieProvider
 {
     /**
      * @return void
