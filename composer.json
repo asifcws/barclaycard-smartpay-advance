@@ -1,0 +1,19 @@
+{
+    "name": "cws/barclaycard-smartpay-advance",
+    "description": "Barclaycard Smartpay Advance payment integration.",
+    "keywords": [
+      "payments"
+    ],
+    "autoload": {
+      "psr-4": {
+        "Cws\\BarclaycardSmartpayAdvance\\": "src/"
+      }
+    },
+    "extra": {
+      "laravel": {
+        "providers": [
+          "Cws\\BarclaycardSmartpayAdvance\\Providers\\BarclaycardSmartpayAdvanceServiceProvider"
+        ]
+      }
+    }
+  }
