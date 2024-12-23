@@ -10,17 +10,11 @@ abstract class SoapFunction
     protected array $arguments;
 
     /**
-     * @var array
-     */
-    protected array $auditTags;
-
-    /**
      * @param array $arguments
      */
-    public function __construct(array $arguments, array $auditTags)
+    public function __construct(array $arguments)
     {
         $this->arguments = $arguments;
-        $this->auditTags = $auditTags;
     }
 
     /**
@@ -32,20 +26,7 @@ abstract class SoapFunction
     }
 
     /**
-     * @return array
-     */
-    public function getAuditTags(): array
-    {
-        return $this->auditTags;
-    }
-
-    /**
      * @return string
      */
     abstract public function getName(): string;
-
-    /**
-     * @return string
-     */
-    abstract public function getAuditMessage(): string;
 }

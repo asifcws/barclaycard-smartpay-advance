@@ -14,7 +14,7 @@ class BeginWebPaymentsRequestMapper implements MapperService
      */
     public function map(array $request): array
     {
-        $authType = $this->mapAuthType();
+        $authType = $this->mapAuthType($request);
         $enterpriseId = $this->mapEnterpriseId();
         $clientId = $this->mapClientId();
         $transNo = $this->mapTransNo($request);
@@ -23,9 +23,10 @@ class BeginWebPaymentsRequestMapper implements MapperService
         $transactionTime = $this->mapTransactionTime();
         $billingAddress = $this->mapBillingAddress($request);
         $purchaseAmount = $this->mapPurchaseAmount($request);
+        $card = $this->mapCard($request);
         $authToken = $this->mapSetHmacToken(get_defined_vars());
 
-        return [
+        $return = [
             'beginWebPayment' => [
                 'arg0' => [
                     'requester' => [
@@ -41,16 +42,19 @@ class BeginWebPaymentsRequestMapper implements MapperService
                     'authenticate' => $this->mapAuthenticate(),
                     'authenticationRequest' => $this->mapAuthenticationRequest(),
                     'billingAddress' => $billingAddress,
-                    'card' => $this->mapCard(),
+                    'card' => $this->mapCard($request),
                     'currencyCode' => $this->mapCurrencyCode(),
                     'paymentMethod' => $this->mapPaymentMehod(),
                     'purchaseAmount' => $purchaseAmount,
                     'purchaseDescription' => $this->mapPurchaseDescription($request),
                     'storeResultPage' => $this->mapStoreResultPage($request),
                     'recurringPayment' => $this->mapRecurringPayment($request),
+                    'schemeReferenceData' => $this->mapSchemeReferenceData($request),
                 ]
             ]
         ];
+
+        return $return;
     }
 
     /**
@@ -63,11 +67,12 @@ class BeginWebPaymentsRequestMapper implements MapperService
     }
 
     /**
+     * @param array $request
      * @return string
      */
-    protected function mapAuthType(): string
+    protected function mapAuthType(array $request): string
     {
-        return 'AuthOnly';
+        return Arr::get($request, 'options.auth_type') ?? 'AuthOnly';
     }
 
     /**
@@ -150,12 +155,18 @@ class BeginWebPaymentsRequestMapper implements MapperService
     }
 
     /**
-     * @return string[]
+     * @param array $request
+     * @return array|null
      */
-    protected function mapCard(): array
+    protected function mapCard(array $request): ?array
     {
+        if (!Arr::get($request, 'options.card')) {
+            return null;
+        }
+
         return [
-            'storageIndicator' => 'first',
+            'storageIndicator' => Arr::get($request, 'options.card.storage_indicator'),
+            'onlineToken' => Arr::get($request, 'options.card.online_token'),
         ];
     }
 
@@ -205,26 +216,43 @@ class BeginWebPaymentsRequestMapper implements MapperService
 
     /**
      * @param array $request
-     * @return array
+     * @return array|null
      */
-    protected function mapRecurringPayment(array $request): array
+    protected function mapRecurringPayment(array $request): ?array
     {
+        if (!Arr::get($request, 'options.recurring_payment')) {
+            return null;
+        }
+
         return [
-            'cardholderAgreement' => 'recurring',
-            'initialPayment' => true,
-            'frequency' => 'ANNUALLY',
-            'endDate' => '2034-11-25',
+            'cardholderAgreement' => Arr::get($request, 'options.recurring_payment.cardholder_agreement'),
+            'initialPayment' => Arr::get($request, 'options.recurring_payment.is_initial_payment'),
+            'frequency' => Arr::get($request, 'options.recurring_payment.frequency'),
+            'endDate' => Arr::get($request, 'options.recurring_payment.end_date'),
         ];
     }
 
     /**
-     * @param array $fields
+     * @param array $request
+     * @return string|null
+     */
+    protected function mapSchemeReferenceData(array $request): ?string
+    {
+        if (!Arr::get($request, 'options.scheme_reference_data')) {
+            return null;
+        }
+
+        return Arr::get($request, 'options.scheme_reference_data');
+    }
+
+    /**
+     * @param array $request
      * @return string
      */
     protected function mapSetHmacToken(array $request): string
     {
-        $enterpiseId = config('barclaycard-smartpay-advance.enterprise_id');
-        $cliendId = config('barclaycard-smartpay-advance.client_id');
+        $enterpriseId = config('barclaycard-smartpay-advance.enterprise_id');
+        $clientId = config('barclaycard-smartpay-advance.client_id');
         $secret = config('barclaycard-smartpay-advance.hmac_secret');
         $transactionNo = Arr::get($request, 'transNo');
         $timestamp = Arr::get($request, 'transactionTime');
@@ -232,13 +260,9 @@ class BeginWebPaymentsRequestMapper implements MapperService
         $addressLine1 = Arr::get($request, 'billingAddress.line1');
         $postCode = Arr::get($request, 'billingAddress.postcode');
         $authType = Arr::get($request, 'authType');
-        $signiture = "{$enterpiseId}{$cliendId}{$transactionNo}{$timestamp}{$amount}{$addressLine1}{$postCode}{$authType}";
+        $onlineToken = Arr::get($request, 'card.onlineToken');
+        $signature = "{$enterpriseId}{$clientId}{$transactionNo}{$timestamp}{$onlineToken}{$amount}{$addressLine1}{$postCode}{$authType}";
 
-        //$sig =  base64_encode(hash_hmac('sha256', $signiture, $secret));
-        $sig =  hash_hmac('sha256', $signiture, $secret);
-
-        //dd(get_defined_vars());
-
-        return $sig;
+        return hash_hmac('sha256', $signature, $secret);
     }
 }

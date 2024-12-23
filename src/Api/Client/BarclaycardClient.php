@@ -46,7 +46,6 @@ class BarclaycardClient extends SoapClient
     public function call(SoapFunction $function): array
     {
         $arguments = $function->getArguments();
-        $this->auditTags = $function->getAuditTags();
         $this->auditFiles = [];
 
         try {
@@ -63,8 +62,8 @@ class BarclaycardClient extends SoapClient
             //return $function->handle($response, $this->auditTags, $this->auditFiles);
 
         } catch (\SoapFault $exception) {
-            $this->auditFiles['request.json'] = json_encode($arguments, JSON_PRETTY_PRINT);
-            $this->auditTags['exception'] = get_class($exception);
+            //$this->auditFiles['request.json'] = json_encode($arguments, JSON_PRETTY_PRINT);
+            //$this->auditTags['exception'] = get_class($exception);
             dd($exception->getMessage(), $exception);
 
             //$function->handleException($exception, $this->auditTags, $this->auditFiles);

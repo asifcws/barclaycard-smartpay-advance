@@ -38,7 +38,13 @@ class BeginWebPaymentsResponseMapper implements MapperService
      */
     protected function parseRedirectUrl(array $response): string
     {
-       return Arr::get($response, 'redirectURL');
+        $redirectUrl = Arr::get($response, 'redirectURL');
+
+        if (!$redirectUrl && Arr::get($response, 'card.storageIndicator') == 'subsequent') {
+            $redirectUrl = Arr::get($response, 'storeResultPage');
+        }
+
+        return $redirectUrl;
     }
 
     /**

@@ -6,4 +6,5 @@ return [
     'client_id' => env('BARCLAYCARD_SMARTPAY_ADVANCE_CLIENT_ID'),
     'hmac_secret' => env('BARCLAYCARD_SMARTPAY_ADVANCE_HMAC_SECRET'),
     'version' => env('BARCLAYCARD_SMARTPAY_ADVANCE_VERSION'),
+    'callback_host' => env('BARCLAYCARD_CALLBACK_HOST'),
 ];
