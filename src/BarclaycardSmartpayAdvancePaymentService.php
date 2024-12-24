@@ -2,8 +2,8 @@
 
 namespace Cws\BarclaycardSmartpayAdvance;
 
-use Cws\BarclaycardSmartpayAdvance\Events\PaymentEvent;
 use Cws\Payments\Contracts\PaymentContract;
+use Cws\Payments\Events\PaymentEvent;
 use Cws\Payments\Models\Payment;
 use Exception;
 use Illuminate\Http\Request;

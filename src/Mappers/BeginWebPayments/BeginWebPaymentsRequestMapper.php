@@ -3,10 +3,10 @@
 namespace Cws\BarclaycardSmartpayAdvance\Mappers\BeginWebPayments;
 
 use Carbon\Carbon;
-use Cws\BarclaycardSmartpayAdvance\Contracts\MapperService;
+use Cws\BarclaycardSmartpayAdvance\Mappers\Mapper;
 use Illuminate\Support\Arr;
 
-class BeginWebPaymentsRequestMapper implements MapperService
+class BeginWebPaymentsRequestMapper extends Mapper
 {
     /**
      * @param array $request
@@ -55,15 +55,6 @@ class BeginWebPaymentsRequestMapper implements MapperService
         ];
 
         return $return;
-    }
-
-    /**
-     * @param array $response
-     * @return array
-     */
-    public function parse(array $response): array
-    {
-        return [];
     }
 
     /**
@@ -207,9 +198,9 @@ class BeginWebPaymentsRequestMapper implements MapperService
 
     /**
      * @param array $request
-     * @return string
+     * @return string|null
      */
-    protected function mapStoreResultPage(array $request): string
+    protected function mapStoreResultPage(array $request): ?string
     {
         return Arr::get($request, 'callback_url');
     }
